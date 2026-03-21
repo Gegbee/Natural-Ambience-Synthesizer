@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import io
 import sounddevice as sd
 import soundfile as sf
-import threading
 import subprocess
 
 # Parameters

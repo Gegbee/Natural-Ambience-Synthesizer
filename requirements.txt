@@ -1,0 +1,6 @@
+Flask==3.0.3
+numpy==1.26.4
+scipy==1.12.0
+soundfile==0.12.1
+matplotlib==3.8.3
+sounddevice==0.4.6
