@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Natural Ambience Synthesizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="static/style.css">
+</head>
+<body>
+<div class="app">
+
+  <div class="app-title">Natural Ambience Synth</div>
+  <div class="sample-info" style="padding-bottom:20px;border-bottom: 1px solid var(--border);">Free for commercial and personal use, no attribution required.</div>
+  <!-- ── Sample Settings ── -->
+  <div class="section-label">Sample Settings</div>
+  <div class="sample-info" id="sampleRateLabel">Sample rate: — Hz</div>
+
+  <div class="slider-row">
+    <div class="slider-header">
+      <span class="slider-label">Length</span>
+      <span class="slider-value" id="lengthVal">1.00 s &nbsp;·&nbsp; — samples</span>
+    </div>
+    <input type="range" id="lengthSlider" min="0" max="60" step="0.01" value="10.0">
+  </div>
+
+  <hr>
+
+  <!-- ── Sound Layers ── -->
+  <div class="section-label">Sound Layers</div>
+
+  <!-- Wind -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="windToggleBtn" onclick="togglePanel('wind')">
+        <i class="arrow">▶</i> Wind
+      </button>
+      <div class="check-toggle on" id="windCheck" onclick="toggleCheck('wind')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="windPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Intensity</span><span class="slider-value" id="windIntensityVal">0.50</span></div>
+        <input type="range" id="windIntensity" min="0" max="1" step="0.01" value="0.50">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Depth</span><span class="slider-value" id="windDepthVal">0.50</span></div>
+        <input type="range" id="windDepth" min="0" max="1" step="0.01" value="0.50">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="windVolumeVal">0.50</span></div>
+        <input type="range" id="windVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Thunder -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="thunderToggleBtn" onclick="togglePanel('thunder')">
+        <i class="arrow">▶</i> Thunder
+      </button>
+      <div class="check-toggle" id="thunderCheck" onclick="toggleCheck('thunder')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="thunderPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="thunderVolumeVal">0.50</span></div>
+        <input type="range" id="thunderVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Rain -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="rainToggleBtn" onclick="togglePanel('rain')">
+        <i class="arrow">▶</i> Rain
+      </button>
+      <div class="check-toggle on" id="rainCheck" onclick="toggleCheck('rain')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="rainPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Intensity</span><span class="slider-value" id="rainIntensityVal">0.50</span></div>
+        <input type="range" id="rainIntensity" min="0" max="1" step="0.01" value="0.50">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Depth</span><span class="slider-value" id="rainDepthVal">0.50</span></div>
+        <input type="range" id="rainDepth" min="0" max="1" step="0.01" value="0.50">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="rainVolumeVal">0.50</span></div>
+        <input type="range" id="rainVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Ocean -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="oceanToggleBtn" onclick="togglePanel('ocean')">
+        <i class="arrow">▶</i> Ocean
+      </button>
+      <div class="check-toggle" id="oceanCheck" onclick="toggleCheck('ocean')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="oceanPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Intensity</span><span class="slider-value" id="oceanIntensityVal">0.50</span></div>
+        <input type="range" id="oceanIntensity" min="0" max="1" step="0.01" value="0.50">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="oceanVolumeVal">0.50</span></div>
+        <input type="range" id="oceanVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaves -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="leavesToggleBtn" onclick="togglePanel('leaves')">
+        <i class="arrow">▶</i> Leaves
+      </button>
+      <div class="check-toggle" id="leavesCheck" onclick="toggleCheck('leaves')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="leavesPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="leavesVolumeVal">0.50</span></div>
+        <input type="range" id="leavesVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Buzzing Electronics -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="buzzingToggleBtn" onclick="togglePanel('buzzing')">
+        <i class="arrow">▶</i> Buzzing Electronics
+      </button>
+      <div class="check-toggle" id="buzzingCheck" onclick="toggleCheck('buzzing')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="buzzingPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Width</span><span class="slider-value" id="buzzingIntensityVal">0.50</span></div>
+        <input type="range" id="buzzingIntensity" min="0" max="1" step="0.01" value="0.50">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="buzzingVolumeVal">0.50</span></div>
+        <input type="range" id="buzzingVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Grumbling Machinery -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="machineryToggleBtn" onclick="togglePanel('machinery')">
+        <i class="arrow">▶</i> Grumbling Machinery
+      </button>
+      <div class="check-toggle" id="machineryCheck" onclick="toggleCheck('machinery')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="machineryPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Intensity</span><span class="slider-value" id="machineryIntensityVal">0.50</span></div>
+        <input type="range" id="machineryIntensity" min="0" max="1" step="0.01" value="0.50">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="machineryVolumeVal">0.50</span></div>
+        <input type="range" id="machineryVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Faraway Cars -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="carsToggleBtn" onclick="togglePanel('cars')">
+        <i class="arrow">▶</i> Faraway Cars
+      </button>
+      <div class="check-toggle" id="carsCheck" onclick="toggleCheck('cars')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="carsPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="carsVolumeVal">0.50</span></div>
+        <input type="range" id="carsVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Crickets -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="cricketToggleBtn" onclick="togglePanel('cricket')">
+        <i class="arrow">▶</i> Crickets
+      </button>
+      <div class="check-toggle on" id="cricketCheck" onclick="toggleCheck('cricket')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="cricketPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="cricketVolumeVal">0.50</span></div>
+        <input type="range" id="cricketVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <!-- Bees -->
+  <div class="layer-section">
+    <div class="layer-header">
+      <button class="toggle-btn" id="beesToggleBtn" onclick="togglePanel('bees')">
+        <i class="arrow">▶</i> Bees
+      </button>
+      <div class="check-toggle" id="beesCheck" onclick="toggleCheck('bees')">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+          <polyline points="1.5,5 4.5,8 10.5,1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="layer-panel" id="beesPanel">
+      <div class="slider-row">
+        <div class="slider-header"><span class="slider-label">Volume</span><span class="slider-value" id="beesVolumeVal">0.50</span></div>
+        <input type="range" id="beesVolume" min="0" max="1" step="0.01" value="0.50">
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ── Export ── -->
+  <div class="section-label">Export</div>
+
+  <label class="field-label">File Name</label>
+  <input class="text-input" type="text" id="fileName" placeholder="output">
+
+  <label class="field-label" style="margin-bottom:8px;">Format</label>
+  <div class="format-selector" id="formatSelector">
+    <button class="fmt-btn active" data-fmt="wav" onclick="selectFormat(this)">WAV</button>
+    <button class="fmt-btn" data-fmt="ogg" onclick="selectFormat(this)">OGG</button>
+    <button class="fmt-btn" data-fmt="opus" onclick="selectFormat(this)">OPUS</button>
+    <button class="fmt-btn" data-fmt="mp3" onclick="selectFormat(this)">MP3</button>
+  </div>
+
+  <div class="action-row" style="margin-top:12px;">
+    <button class="action-btn" onclick="doExport()">Export</button>
+    <span class="timing" id="exportTime"></span>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  const state = {
+    sampleRate: 44100,
+    duration: 10.0,
+    wind:      { on: true,  intensity: 0.5, depth: 0.5, volume: 0.5 },
+    thunder:   { on: false, volume: 0.5 },
+    rain:      { on: true,  intensity: 0.5, depth: 0.5, volume: 0.5 },
+    ocean:     { on: false, intensity: 0.5, volume: 0.5 },
+    leaves:    { on: false, volume: 0.5 },
+    buzzing:   { on: false, intensity: 0.5, volume: 0.5 },
+    machinery: { on: false, intensity: 0.5, volume: 0.5 },
+    cars:      { on: false, volume: 0.5 },
+    cricket:   { on: true,  volume: 0.5 },
+    bees:      { on: false, volume: 0.5 },
+    format: "wav",
+    panels: {
+      wind: false, thunder: false, rain: false, ocean: false,
+      leaves: false, buzzing: false, machinery: false,
+      cars: false, cricket: false, bees: false
+    }
+  };
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  fetch("/api/sample-rate")
+    .then(r => r.json())
+    .then(d => {
+      state.sampleRate = d.sample_rate;
+      document.getElementById("sampleRateLabel").textContent = `Sample rate: ${d.sample_rate} Hz`;
+      updateLengthLabel();
+    });
+
+  // ── Length slider ──────────────────────────────────────────────────────────
+  const lengthSlider = document.getElementById("lengthSlider");
+  lengthSlider.addEventListener("input", () => {
+    state.duration = parseFloat(lengthSlider.value);
+    updateLengthLabel();
+  });
+
+  function updateLengthLabel() {
+    const samples = Math.round(state.duration * state.sampleRate);
+    document.getElementById("lengthVal").textContent =
+      `${state.duration.toFixed(2)} s · ${samples.toLocaleString()} samples`;
+  }
+
+  // ── Generic slider binding ─────────────────────────────────────────────────
+  function bindSlider(id, valId, obj, key) {
+    const el = document.getElementById(id);
+    const vl = document.getElementById(valId);
+    el.addEventListener("input", () => {
+      const v = parseFloat(el.value);
+      obj[key] = v;
+      vl.textContent = v.toFixed(2);
+    });
+  }
+
+  bindSlider("windIntensity",      "windIntensityVal",      state.wind,      "intensity");
+  bindSlider("windDepth",          "windDepthVal",          state.wind,      "depth");
+  bindSlider("windVolume",         "windVolumeVal",         state.wind,      "volume");
+  bindSlider("thunderVolume",      "thunderVolumeVal",      state.thunder,   "volume");
+  bindSlider("rainIntensity",      "rainIntensityVal",      state.rain,      "intensity");
+  bindSlider("rainDepth",          "rainDepthVal",          state.rain,      "depth");
+  bindSlider("rainVolume",         "rainVolumeVal",         state.rain,      "volume");
+  bindSlider("oceanIntensity",     "oceanIntensityVal",     state.ocean,     "intensity");
+  bindSlider("oceanVolume",        "oceanVolumeVal",        state.ocean,     "volume");
+  bindSlider("leavesVolume",       "leavesVolumeVal",       state.leaves,    "volume");
+  bindSlider("buzzingIntensity",   "buzzingIntensityVal",   state.buzzing,   "intensity");
+  bindSlider("buzzingVolume",      "buzzingVolumeVal",      state.buzzing,   "volume");
+  bindSlider("machineryIntensity", "machineryIntensityVal", state.machinery, "intensity");
+  bindSlider("machineryVolume",    "machineryVolumeVal",    state.machinery, "volume");
+  bindSlider("carsVolume",         "carsVolumeVal",         state.cars,      "volume");
+  bindSlider("cricketVolume",      "cricketVolumeVal",      state.cricket,   "volume");
+  bindSlider("beesVolume",         "beesVolumeVal",         state.bees,      "volume");
+
+  // ── Toggle panel open/close ────────────────────────────────────────────────
+  function togglePanel(name) {
+    state.panels[name] = !state.panels[name];
+    const panel = document.getElementById(name + "Panel");
+    const btn   = document.getElementById(name + "ToggleBtn");
+    if (state.panels[name]) {
+      panel.classList.add("open");
+      btn.classList.add("open");
+    } else {
+      panel.classList.remove("open");
+      btn.classList.remove("open");
+    }
+  }
+
+  // ── Toggle check on/off ────────────────────────────────────────────────────
+  function toggleCheck(name) {
+    const obj = state[name];
+    obj.on = !obj.on;
+    const el = document.getElementById(name + "Check");
+    el.classList.toggle("on", obj.on);
+  }
+
+  // ── Format selector ────────────────────────────────────────────────────────
+  function selectFormat(btn) {
+    document.querySelectorAll(".fmt-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.format = btn.dataset.fmt;
+  }
+
+  // ── Export ─────────────────────────────────────────────────────────────────
+  async function doExport() {
+    const btn = document.querySelector("button[onclick='doExport()']");
+    btn.textContent = "Exporting…";
+    btn.disabled = true;
+    const timingEl = document.getElementById("exportTime");
+    timingEl.textContent = "";
+
+    try {
+      const t0 = performance.now();
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          duration:           state.duration,
+          wind_on:            state.wind.on,
+          wind_intensity:     state.wind.intensity,
+          wind_depth:         state.wind.depth,
+          wind_volume:        state.wind.volume,
+          thunder_on:         state.thunder.on,
+          thunder_volume:     state.thunder.volume,
+          rain_on:            state.rain.on,
+          rain_intensity:     state.rain.intensity,
+          rain_depth:         state.rain.depth,
+          rain_volume:        state.rain.volume,
+          ocean_on:           state.ocean.on,
+          ocean_intensity:    state.ocean.intensity,
+          ocean_volume:       state.ocean.volume,
+          leaves_on:          state.leaves.on,
+          leaves_volume:      state.leaves.volume,
+          buzzing_on:         state.buzzing.on,
+          buzzing_intensity:  state.buzzing.intensity,
+          buzzing_volume:     state.buzzing.volume,
+          machinery_on:       state.machinery.on,
+          machinery_intensity:state.machinery.intensity,
+          machinery_volume:   state.machinery.volume,
+          cars_on:            state.cars.on,
+          cars_volume:        state.cars.volume,
+          cricket_on:         state.cricket.on,
+          cricket_volume:     state.cricket.volume,
+          bees_on:            state.bees.on,
+          bees_volume:        state.bees.volume,
+          file_name:          document.getElementById("fileName").value || "output",
+          format:             state.format,
+        })
+      });
+
+      if (!res.ok) {
+        timingEl.textContent = "error";
+      } else {
+        // Trigger browser download from the blob
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        const serverMs = res.headers.get("X-Elapsed-Ms");
+        const clientMs = Math.round(performance.now() - t0);
+        a.href = url;
+        a.download = (document.getElementById("fileName").value || "output") + "." + state.format;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        timingEl.textContent = serverMs ? `${serverMs} ms` : `${clientMs} ms`;
+      }
+    } catch (e) {
+      timingEl.textContent = "error";
+      console.error(e);
+    }
+
+    btn.textContent = "Export";
+    btn.disabled = false;
+  }
+</script>
+</body>
+</html>
