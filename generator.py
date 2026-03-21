@@ -13,17 +13,17 @@ import subprocess
 # Parameters
 sample_rate = 44100 # Hz
 duration = 10.0 # seconds
-current_sound = np.zeros(int(sample_rate * duration))
+current_sound = np.zeros(int(sample_rate * duration)) # Basic sound array with no components
 
-def lowpass(sound, cutoff=200, order=5):
+def lowpass(sound, cutoff=200, order=5): # Trivial implementation so using butter
     b, a = butter(order, cutoff/(sample_rate/2), btype='low')
     return lfilter(b, a, sound)
 
-def highpass(sound, cutoff=2000, order=5):
+def highpass(sound, cutoff=2000, order=5): # Trivial implementation so using butter
     b, a = butter(order, cutoff/(sample_rate/2), btype='high')
     return lfilter(b, a, sound)
 
-def white_noise(d=duration):
+def white_noise(d=duration): # Low initial amplitude because it will be layered in most sounds
     noise = 0.3 * np.random.randn(int(sample_rate * d))
     return noise
 
@@ -102,7 +102,19 @@ def LFO_random_smooth(sound, freq=1.0, depth=0.5, d=duration):
     lfo = np.interp(t, control_times, control_values)
     return (1 + lfo * depth) * sound
 
-def reverb(sound, gain=0.5, depth=1):
+def smooth_random_amplitude_modulation(sound,mod_freq=1.0,min_gain=0.5,max_gain=1.5):
+    n = len(sound)
+    noise = np.random.randn(n)
+    kernel_size = int(sample_rate / mod_freq)
+    kernel_size = max(1, kernel_size)
+    kernel = np.ones(kernel_size) / kernel_size
+    smooth_noise = np.convolve(noise, kernel, mode="same")
+    smooth_noise -= smooth_noise.min()
+    smooth_noise /= smooth_noise.max()
+    gain = min_gain + smooth_noise * (max_gain - min_gain)
+    return sound * gain
+
+def reverb(sound, gain=0.5, depth=1): # Does not make a noticeable effect on sounds with broad frequency ranges.
     shift_size = int(sample_rate/30)
     r = np.zeros_like(sound)
     for d in range(1, depth+1):
@@ -121,7 +133,7 @@ def slow_noise(change_rate=0.1, seed=None, d=duration):
     f = f * f * (3 - 2 * f)
     return values[i0] * (1 - f) + values[i1] * f
 
-def adsr_envelope(waveform, attack, decay, sustain_level, release):
+def adsr_envelope(waveform, attack, decay, sustain_level, release): # Uses linear interpolation between phases. Could implement easings with a pre-made library to smooth attack for better modulation.
     total_samples = len(waveform)
     a = int(attack  * sample_rate)
     d = int(decay   * sample_rate)
@@ -138,7 +150,7 @@ def adsr_envelope(waveform, attack, decay, sustain_level, release):
         envelope = envelope[:total_samples]
     return waveform * envelope
 
-def loop_finite(enveloped_wave, d=duration, n=1):
+def loop_finite(enveloped_wave, d=duration, n=1): # Loops a finite amount of sounds, with n per second, for d seconds
     total_samples = int(d * sample_rate)
     output = np.zeros(total_samples)
     pos = 0
@@ -149,7 +161,7 @@ def loop_finite(enveloped_wave, d=duration, n=1):
         pos += int(sample_rate/n)
     return output
 
-def loop_finite_random(enveloped_wave, d=duration, n=1, amplitude_depth=0.0):
+def loop_finite_random(enveloped_wave, d=duration, n=1, amplitude_depth=0.0): # The same as the above function, but sounds are randomly distributed with a mean of n per second. The relative amplitude of each sound is
     total_samples = int(d * sample_rate)
     output = np.zeros(total_samples)
     wave = enveloped_wave[:total_samples]
@@ -192,7 +204,8 @@ def offset(array, t):
 ### RENDER AND EXPORTING ###
 
 def export_to_bytes(sound, format='wav'):
-    """Render sound and return (bytes, mime_type) for HTTP streaming download."""
+    # Render sound and return (bytes, mime_type) for HTTP streaming download
+    # Does not work when running this file on its own, needs app.py to govern this function
     audio_data = render(sound)
     buf = io.BytesIO()
 
@@ -227,10 +240,10 @@ def export_to_bytes(sound, format='wav'):
         return result.stdout, 'audio/mpeg'
 
     else:
-        raise ValueError(f"Unsupported format '{format}'.")
+        raise ValueError(f"Unsupported format: '{format}'")
 
 def export(sound, filename, format='wav'):
-    """Write audio file to disk (used when running module directly)."""
+    # Write audio file to disk (used when running module directly)
     audio_data = render(sound)
     if format == 'wav':
         write(filename + ".wav", sample_rate, audio_data)
@@ -253,7 +266,7 @@ def export(sound, filename, format='wav'):
             input=buffer.read(), check=True, capture_output=True
         )
     else:
-        raise ValueError(f"Unsupported format '{format}'.")
+        raise ValueError(f"Unsupported format: '{format}'")
 
 def crossfade_loop(sound, fade_duration=duration/5.0):
     fade_samples = int(fade_duration * sample_rate)
@@ -262,14 +275,11 @@ def crossfade_loop(sound, fade_duration=duration/5.0):
     ramp_out = 0.5 * (1.0 + np.cos(np.linspace(0.0, np.pi, fade_samples)))
 
     start = sound[0:fade_samples].copy()
-    end   = sound[(total_samples-fade_samples):total_samples].copy()
-    out   = sound.copy()
+    end = sound[(total_samples-fade_samples):total_samples].copy()
+    out = sound.copy()
 
-    # Start of loop: blend end (fading out) into start (fading in)
-    out[0:fade_samples]  = (start * ramp_in) + (end * ramp_out)
-
-    # End of loop: blend start (fading out) into end (fading in) — ramps were swapped here
-    out[(total_samples-fade_samples):total_samples] = (end * ramp_out) + (start * ramp_in)
+    out[0:fade_samples]  = (start * ramp_in) + (end * ramp_out) # Beginning of loop
+    out[(total_samples-fade_samples):total_samples] = (end * ramp_out) + (start * ramp_in) # End of loop
 
     return out
 
@@ -288,32 +298,52 @@ def render(sound):
 
 ### SOUNDS ###
 
-def wind(width=0.1, intensity=0.5, volume=1.0):
+def wind(width=0.1, intensity=0.5, volume=1.0): # Intensity = volume in this simple scenario
     w1 = LFO((highpass(lowpass(white_noise(duration), 1000), 800)) * slow_noise(10.0, None, duration) * 0.4, 1.0, 'triangle', 0.7)
     w2 = LFO(highpass(lowpass(white_noise(duration), 600), 200), 0.5, 'sine', 0.3)
     w3 = LFO(((highpass(lowpass(white_noise(duration), 1500), 1100)) + 0.05*flute_like_sine(320-width*100, 7, duration)) * slow_noise(20.0, None, duration) * 0.1, 0.2, 'triangle', 0.9)
     f = w1*(1-width*0.5) + w2*width + w3*(1-width)
-    return f * volume
+    return f * volume * intensity
 
-def thunder(volume=1.0):
+def thunder(volume=1.0): # Improvement experimented on here that failed: since kick drums sound like thunder and are made of sine waves, I could add a drum-like punch sound layered on top of each noise burst
+    # Another possible improvement experimented on here: packing the finite loops of the bursts into literal bursts OF bursts, and then loop those bursts of bursts.
     w = lowpass(white_noise(duration), 200) * 0.5
-    burst1 = lowpass(white_noise(5), 200)
+    burst1 = lowpass(white_noise(5), 200) #+ sine(50, 5) * 0.2
     burst1 = adsr_envelope(burst1, attack=0.1, decay=3, sustain_level=0.0, release=0.00)
-    burst2 = lowpass(white_noise(5), 500)
+    burst2 = lowpass(white_noise(5), 500) #+ sine(100, 5) * 0.2
     burst2 = adsr_envelope(burst2, attack=0.01, decay=2, sustain_level=0.0, release=0.00) * 0.8
-    burst3 = lowpass(white_noise(5), 50)
+    burst3 = lowpass(white_noise(5), 50) #+ sine(20, 5) * 0.2
     burst3 = LFO(adsr_envelope(burst3, attack=0.002, decay=4, sustain_level=0.0, release=0.00) * 2, 10, 'sine', 0.5, 5)
     burst4 = highpass(lowpass(white_noise(2), 1000), 300)
     burst4 = adsr_envelope(burst3, attack=0.002, decay=0.5, sustain_level=0.0, release=0.00)
+    bob = loop_finite_random(burst1, 2, 4, 0.7) + loop_finite_random(burst3, 2, 4, 0.7)
     bursts = (loop_finite_random(burst1, duration, 0.8, 0.5)
               + loop_finite_random(burst2, duration, 0.7, 0.5)
               + loop_finite_random(burst3, duration, 0.7, 0.5)
-              + loop_finite_random(burst4, duration, 0.6, 0.5))
+              + loop_finite_random(burst4, duration, 0.6, 0.5)
+              + loop_finite_random(bob, duration, 0.4, 0.5))
     combined = w + bursts
     combined = LFO_random_smooth(combined, 2, 0.9, duration)
+
+    # There seems to be clipping/crackling happening to this sound in particular. It isn't harsh clipping but just soft clipping-- maybe I need to investigate the render function?
     return combined * volume
 
-def rain(width=0.1, intensity=0.6, volume=1.0):
+
+# Old, but best I was able to get
+def rain(width=1.0, intensity=0.5, volume=1.0): # intensity is from 0 to 1, with 0 being sprinkling, and 1 being pouring
+    w = LFO(lowpass(white_noise(), 700), 0.32, depth=0.22)
+    w1 = highpass(lowpass(white_noise(), 9000), 5000)
+    w2 = smooth_random_amplitude_modulation(w1, 100, 0.15, 2.2) # Similar result to granular synthesis, if not basically the same thing
+    w4 = highpass(lowpass(white_noise(), 2200), 900)
+    w5 = highpass(smooth_random_amplitude_modulation(w4, 28, 0.0, 2.0), 450)
+    w7 = smooth_random_amplitude_modulation(w, 12.0)
+    combined = (w * 0.9 + w2 * 1.1 + w5 * 3.0 + w7 * 1.6) * (0.9 + 0.3 * slow_noise(0.08))
+    combined = band_EQ(combined, [0.7, 0.9, 1.0, 0.9, 0.8, 0.6, 0.4, 0.3, 0.2, 0.15])
+    combined = combined * intensity
+    return combined * volume
+
+
+def rain_legacy(width=0.1, intensity=0.6, volume=1.0): # A failed attempt at granular synthesis to improve upon the previous rain sound, which sadly ended up sounding better than this one. The older and better sounding rain sound is consequently the one that will be left in the production build for right now.
     center = highpass(lowpass(white_noise(duration), 6000), 2000) * 0.7
 
     close_drop = (
@@ -349,7 +379,7 @@ def rain(width=0.1, intensity=0.6, volume=1.0):
     )
     return combined * volume
 
-def ocean(intensity=0.5, volume=1.0):
+def ocean(intensity=0.5, volume=1.0): # Intensity is fixed because I wanted to separate the shore audio, but never got around to making a lighter sounding shore due to the constraints on my FM synthesis functions
     w2 = LFO(highpass(lowpass(white_noise(duration), 500), 100), 0.05, 'sine', 0.99)
     w3 = LFO(highpass(lowpass(white_noise(duration), 300), 10), 0.12, 'triangle', 0.99) * 0.5
     w4 = LFO(highpass(white_noise(duration), 300), 0.15, 'triangle', 0.8) * 0.5
@@ -365,7 +395,7 @@ def leaves(volume=1.0):
     combined = LFO(combined, 0.2, 'sine', 0.3)
     return combined * volume
 
-def buzzing_electronics(width=0.0, intensity=1.0, volume=1.0):
+def buzzing_electronics(width=0.0, volume=1.0):
     n = int(sample_rate * duration)
     t = np.arange(n) / sample_rate
     hum = 0.07 * np.sin(2 * np.pi * (120.0 + (1-width)*60.0) * t)
@@ -387,7 +417,7 @@ def faraway_cars(volume=1.0):
     low = highpass(lowpass(LFO(white_noise(duration), freq=0.25, waveform='sine', depth=0.1) * 0.1, 400), 200)
     return low * volume
 
-def crickets(volume=1.0):
+def crickets(intensity=0.5, volume=1.0):
     chirp_duration = 0.22
     t = np.linspace(0, chirp_duration, int(sample_rate * chirp_duration))
     carrier = sine(2300, chirp_duration) + sine(3800, chirp_duration) * 0.5 + sine(5000, chirp_duration) * 0.05 + lowpass(highpass(white_noise(chirp_duration), 2000), 2500) * 0.3
@@ -402,7 +432,7 @@ def crickets(volume=1.0):
     output = default1 + default2 + + offset(default2*2, 2.134) + lowpass(white_noise(duration), 400) * 0.15
     return output * volume
 
-def bees(volume=1.0):
+def bees(volume=1.0): # Unfinished
     base = (lowpass(highpass(sawtooth(240, 3), 200), 3000)
             + highpass(lowpass(white_noise(3), 1000), 100) * 0.5)
     base = LFO_random_smooth(base, 5, 0.7, 3)
@@ -412,5 +442,7 @@ def bees(volume=1.0):
     return buzzes * volume
 
 
-if __name__ == "__main__":
-    export(crickets(), 'crickets')
+if __name__ == "__main__": # When running this file on its own, you can test exports locally. Right here, the crickets export is tested locally.
+    #export(crickets(), 'crickets')
+    export(rain(), 'test_sounds/rain')
+    #export(thunder(), 'test_sounds/thunder')
