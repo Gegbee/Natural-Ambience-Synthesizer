@@ -1,21 +1,24 @@
 FROM python:3.11-slim
 
-# Install FFmpeg (required by the app for audio export)
+# Install FFmpeg and PortAudio (required by soundfile and sounddevice)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    git \
+    libportaudio2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Clone the repository
-RUN git clone https://github.com/Gegbee/Natural-Ambience-Synthesizer.git .
-
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
-# Expose Flask's default port
-EXPOSE 5000
+# Copy application source
+COPY . .
 
-# Run the Flask app, binding to all interfaces so it's reachable outside the container
-CMD ["python", "-c", "import app; app.app.run(host='0.0.0.0', port=5000)"]
+# Render injects PORT at runtime; default to 10000 (Render's default)
+ENV PORT=10000
+
+EXPOSE 10000
+
+# Use gunicorn for production, do NOT use Flask's built-in dev server
+CMD gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 2 app:app
