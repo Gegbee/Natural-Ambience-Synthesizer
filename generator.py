@@ -443,6 +443,7 @@ def bees(volume=1.0): # Unfinished
 
 
 if __name__ == "__main__": # When running this file on its own, you can test exports locally. Right here, the crickets export is tested locally.
-    #export(crickets(), 'crickets')
-    export(rain(), 'test_sounds/rain')
-    #export(thunder(), 'test_sounds/thunder')
+    export(crickets(), 'analysis/crickets')
+    export(wind(0.0), 'analysis/wind')
+    #export(rain(), 'test_sounds/rain')
+    export(thunder(), 'test_sounds/thunder')
