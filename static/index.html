@@ -15,7 +15,7 @@
 
   <div class="app-title">Natural Ambience Synth</div>
   <div class="sample-info" style="padding-bottom:20px;border-bottom: 1px solid var(--border);">Free for commercial and personal use, no attribution required.</div>
-  <!-- ── Sample Settings ── -->
+  
   <div class="section-label">Sample Settings</div>
   <div class="sample-info" id="sampleRateLabel">Sample rate: — Hz</div>
 
@@ -29,7 +29,6 @@
 
   <hr>
 
-  <!-- ── Sound Layers ── -->
   <div class="section-label">Sound Layers</div>
 
   <!-- Wind -->
@@ -262,7 +261,7 @@
 
   <hr>
 
-  <!-- ── Export ── -->
+  <!-- Export -->
   <div class="section-label">Export</div>
 
   <label class="field-label">File Name</label>
@@ -284,7 +283,6 @@
 </div>
 
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
   const state = {
     sampleRate: 44100,
     duration: 10.0,
@@ -306,7 +304,6 @@
     }
   };
 
-  // ── Init ───────────────────────────────────────────────────────────────────
   fetch("/api/sample-rate")
     .then(r => r.json())
     .then(d => {
@@ -315,7 +312,6 @@
       updateLengthLabel();
     });
 
-  // ── Length slider ──────────────────────────────────────────────────────────
   const lengthSlider = document.getElementById("lengthSlider");
   lengthSlider.addEventListener("input", () => {
     state.duration = parseFloat(lengthSlider.value);
@@ -328,7 +324,6 @@
       `${state.duration.toFixed(2)} s · ${samples.toLocaleString()} samples`;
   }
 
-  // ── Generic slider binding ─────────────────────────────────────────────────
   function bindSlider(id, valId, obj, key) {
     const el = document.getElementById(id);
     const vl = document.getElementById(valId);
@@ -357,7 +352,6 @@
   bindSlider("cricketVolume",      "cricketVolumeVal",      state.cricket,   "volume");
   bindSlider("beesVolume",         "beesVolumeVal",         state.bees,      "volume");
 
-  // ── Toggle panel open/close ────────────────────────────────────────────────
   function togglePanel(name) {
     state.panels[name] = !state.panels[name];
     const panel = document.getElementById(name + "Panel");
@@ -371,7 +365,6 @@
     }
   }
 
-  // ── Toggle check on/off ────────────────────────────────────────────────────
   function toggleCheck(name) {
     const obj = state[name];
     obj.on = !obj.on;
@@ -379,14 +372,12 @@
     el.classList.toggle("on", obj.on);
   }
 
-  // ── Format selector ────────────────────────────────────────────────────────
   function selectFormat(btn) {
     document.querySelectorAll(".fmt-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     state.format = btn.dataset.fmt;
   }
 
-  // ── Export ─────────────────────────────────────────────────────────────────
   async function doExport() {
     const btn = document.querySelector("button[onclick='doExport()']");
     btn.textContent = "Exporting…";

@@ -36,7 +36,7 @@ body {
   gap: 0;
 }
 
-/* ── Title ── */
+
 .app-title {
   font-family: "Google Sans", sans-serif;
   font-size: 18px;
@@ -52,7 +52,6 @@ body {
   color: var(--subtext);
 }
 
-/* ── Section label ── */
 .section-label {
   font-family: "Google Sans", sans-serif;
   font-size: 12px;
@@ -63,14 +62,12 @@ body {
   padding: 18px 0 6px;
 }
 
-/* ── Divider ── */
 hr {
   border: none;
   border-top: 1px solid var(--border);
   margin: 10px 0;
 }
 
-/* ── Slider ── */
 .slider-row {
   display: flex;
   flex-direction: column;
@@ -124,7 +121,6 @@ input[type="range"]::-moz-range-thumb {
   border: 2px solid var(--bg-dark);
 }
 
-/* ── Panel (collapsible) ── */
 .layer-section { margin-bottom: 6px; }
 
 .layer-header {
@@ -162,7 +158,6 @@ input[type="range"]::-moz-range-thumb {
 
 .toggle-btn.open .arrow { transform: rotate(90deg); }
 
-/* ── Checkbox toggle ── */
 .check-toggle {
   width: 26px;
   height: 26px;
@@ -191,7 +186,6 @@ input[type="range"]::-moz-range-thumb {
 
 .check-toggle.on svg { opacity: 1; }
 
-/* ── Collapsible panel ── */
 .layer-panel {
   overflow: hidden;
   max-height: 0;
@@ -210,7 +204,6 @@ input[type="range"]::-moz-range-thumb {
   margin-top: 6px;
 }
 
-/* ── Buttons ── */
 .action-row {
   display: flex;
   align-items: center;
@@ -251,7 +244,6 @@ input[type="range"]::-moz-range-thumb {
   min-width: 60px;
 }
 
-/* ── Text input ── */
 .field-label {
   color: var(--text-muted);
   font-size: 11px;
@@ -283,7 +275,6 @@ input[type="range"]::-moz-range-thumb {
   opacity: 0.6;
 }
 
-/* ── Format selector ── */
 .format-selector {
   display: flex;
   gap: 6px;
@@ -311,7 +302,6 @@ input[type="range"]::-moz-range-thumb {
   color: #fff;
 }
 
-/* ── Sample info ── */
 .sample-info {
   color: var(--text-muted);
   font-size: 11px;
